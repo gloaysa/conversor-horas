@@ -3,25 +3,6 @@
     <div class="column">
       <h1 class="title is-1">Conversor archivo CSV</h1>
     </div>
-    <div class="column container">
-        <div class="file has-name is-boxed is-centered"
-             v-bind:class="{'is-info': !loadedFile, 'is-primary': loadedFile}">
-          <label class="file-label">
-            <input class="file-input" type="file"
-                   id="fileInput"
-                   @change="upload">
-            <span class="file-cta">
-              <span class="file-icon">
-                <i class="fas fa-upload"></i>
-              </span>
-              <span class="file-label">
-                Selecciona archivo...
-              </span>
-            </span>
-            <span class="file-name" id="file-name" v-show="loadedFile"></span>
-          </label>
-        </div>
-    </div>
 
     <div class="columns container is-centered">
 
@@ -41,7 +22,7 @@
           <div class="field-body">
             <div class="field">
               <div class="control">
-                <input class="input" type="text" v-model="product" placeholder="Module (e.g. Connect MB">
+                <input class="input" type="text" v-model="product" placeholder="Module (e.g. Connect MB)">
               </div>
             </div>
           </div>
@@ -67,6 +48,25 @@
           </div>
         </div>
 
+        <div class="file has-name is-boxed is-centered"
+             v-bind:class="{'is-info': !loadedFile, 'is-primary': loadedFile}"
+             v-show="name.length > 1 && supplier.length > 1">
+          <label class="file-label">
+            <input class="file-input" type="file"
+                   id="fileInput"
+                   @change="upload">
+            <span class="file-cta">
+              <span class="file-icon">
+                <i class="fas fa-upload"></i>
+              </span>
+              <span class="file-label">
+                Selecciona archivo...
+              </span>
+            </span>
+            <span class="file-name" id="file-name" v-show="loadedFile"></span>
+          </label>
+        </div>
+
       </div>
 
       <div class="column is-half">
@@ -75,7 +75,7 @@
           class="textarea"
           v-bind:class="{'is-warning': isEditable}"
           rows="17"
-          :readonly="!isEditable"
+          readonly
           v-model='doc'>
         </textarea>
         </div>
@@ -85,16 +85,7 @@
               @click='save'
               v-if="loadedFile">Guardar
             </button>
-          <button
-              class="button is-warning"
-              @click='isEditable = !isEditable'
-              v-if="loadedFile && !isEditable">Editar
-          </button>
-            <button
-              class="button is-info"
-              @click='isEditable = !isEditable'
-              v-if="loadedFile && isEditable">Terminar edición
-            </button>
+
         </div>
 
 
@@ -138,13 +129,13 @@
               results.data.forEach((dataHour, index) => {
                 let dataIndex = data[index]
                 let date = dataHour[0]
-                let hour = dataHour[5]
+                let hour = dataHour[5].replace(',', '.')
                 if (getOnSiteHour(dataHour[4])) {
                   dataIndex[0] = hour
-                  dataIndex[1] = ''
+                  dataIndex[1] = '0'
                 } else {
                   dataIndex[1] = hour
-                  dataIndex[0] = ''
+                  dataIndex[0] = '0'
                 }
                 dataIndex[2] = that.name
                 dataIndex[3] = date
