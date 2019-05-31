@@ -3,7 +3,7 @@ Esta aplicación convierte las horas desde el formato de Navision al esperado po
 
 Para descargar las horas, ve a Navision/JobEntries y selecciona tu proyecto y WorkPackage. Copia los datos (solo los datos, sin cabeceras) y crea con ellos un archivo CSV, que será el que importes en la aplicación tras rellenar los campos.
 
-El programa diferencia las horas en remoto y on-site.
+El programa diferencia las horas en remoto y on-site. Si tu contrato no diferencia las horas, desmarca la casilla.
 
 ### Posibles problemas
 * Todo está bastante _hardcoded_. La verdad es que no he querido tampoco perder demasiado el tiempo con esto. Si hay algún cambio en tu plantilla o en la que yo uso en el futuro, habrá que cambiar el código a mano. Al menos ya tienes bastante avanzado.

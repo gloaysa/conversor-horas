@@ -2,6 +2,7 @@
   <div class="section">
     <div class="column">
       <h1 class="title is-1">Conversor archivo CSV</h1>
+        <p>Los datos aquí introducidos aparecerán en sus correspondientes columnas.</p>
     </div>
 
     <div class="columns container is-centered">
@@ -46,6 +47,11 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <div class="field">
+          <input type="checkbox" id="checkbox" v-model="onRemoteHours">
+          <label for="checkbox"> Different hourly rate on remote? </label>
         </div>
 
         <div class="file has-name is-boxed is-centered"
@@ -109,7 +115,8 @@
         name: 'Guillermo Loaysa',
         product: 'Connect MB',
         role: 'DEV-FE',
-        supplier: 'Novatec Consulting'
+        supplier: 'Novatec Consulting',
+        onRemoteHours: true
       }
     },
     methods: {
@@ -144,7 +151,7 @@
 
               table.forEach(row => {
                 const date = changeDate(row[0]);
-                splitOnSiteAndOffSiteHours(row);
+                that.onRemoteHours ? splitOnSiteAndOffSiteHours(row) : noSplitHours(row);
                 
                 row[2] = that.name; // Name of employee
                 row[3] = date; // Date
@@ -155,18 +162,27 @@
                 row[8] = ''; // DayRate
                 row[9] = that.supplier; // Supplier
                 row[10] = 0; // Euro
-              });
 
+                that.onRemoteHours ? '' : row.shift();
+              });
+              that.onRemoteHours ? '' : HEADERS.shift();
               table.unshift(HEADERS);
+
               const papaParseSaveConfig = {
-                delimiter: ';'
+                delimiter: ';',
+                skipEmptyLines: true
               };
               that.doc = Papa.unparse(table, papaParseSaveConfig);
+
+              function noSplitHours (row) {
+                HEADERS[1] = 'Hours';
+                row[1] = row[5];
+              }
 
               function splitOnSiteAndOffSiteHours (row) {
                 let hour = row[5];
 
-                if (getOnSiteHour(row[4])) {
+                if (isThisHourOnSite(row[4])) {
                   row[1] = hour; // Off-site
                   row[0] = ''; // On-site
                 } else {
@@ -180,7 +196,7 @@
                 return newDate;
               }
 
-              function getOnSiteHour (hours) {
+              function isThisHourOnSite (hours) {
                 return !!hours.match(/remote/);
               }
             },
