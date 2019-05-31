@@ -114,76 +114,102 @@
     },
     methods: {
       upload (e) {
-        const that = this
-        const fileToLoad = event.target.files[0]
-        const reader = new FileReader()
-        document.getElementById('file-name').innerHTML = event.target.files[0].name ? event.target.files[0].name : 'Selecciona archivo'
-        this.loadedFile = true
+        const that = this;
+        const fileToLoad = event.target.files[0];
+        const reader = new FileReader();
+
+        document.getElementById('file-name').innerHTML = event.target.files[0].name ? event.target.files[0].name : 'Selecciona archivo';
+        this.loadedFile = true;
+
         reader.onload = fileLoadedEvent => {
           Papa.parse(fileLoadedEvent.target.result, {
             header: false,
             skipEmptyLines: true,
+            
             complete (results) {
-              const HEADER = ['Hours On-Site', 'Hours Off-Site', 'Name of employee', 'Date', 'PT', 'Module (Product)', 'Role', 'Comment', 'Dayrate', 'Supplier', 'Euro']
-              let data = results.data
-              results.data.forEach((dataHour, index) => {
-                let dataIndex = data[index]
-                let date = changeDate(dataHour[0])
-                changeDate(date)
-                let hour = dataHour[5].replace(',', '.')
-                if (getOnSiteHour(dataHour[4])) {
-                  dataIndex[1] = hour
-                  dataIndex[0] = '0'
+              const HEADERS = [
+                'Hours On-Site',
+                'Hours Off-Site',
+                'Name of employee',
+                'Date',
+                'PT',
+                'Module (Product)',
+                'Role',
+                'Comment',
+                'Dayrate',
+                'Supplier',
+                'Euro'
+              ];
+              let table = results.data;
+
+              table.forEach(row => {
+                const date = changeDate(row[0]);
+                splitOnSiteAndOffSiteHours(row);
+                
+                row[2] = that.name; // Name of employee
+                row[3] = date; // Date
+                row[4] = ''; // PT
+                row[5] = that.product; // Product
+                row[6] = that.role; // Role
+                row[7] = ''; // Comment
+                row[8] = ''; // DayRate
+                row[9] = that.supplier; // Supplier
+                row[10] = 0; // Euro
+              });
+
+              table.unshift(HEADERS);
+              const papaParseSaveConfig = {
+                delimiter: ';'
+              };
+              that.doc = Papa.unparse(table, papaParseSaveConfig);
+
+              function splitOnSiteAndOffSiteHours (row) {
+                let hour = row[5];
+
+                if (getOnSiteHour(row[4])) {
+                  row[1] = hour; // Off-site
+                  row[0] = ''; // On-site
                 } else {
-                  dataIndex[0] = hour
-                  dataIndex[1] = '0'
+                  row[0] = hour; // On-site
+                  row[1] = ''; // Off-site
                 }
-                dataIndex[2] = that.name
-                dataIndex[3] = date
-                dataIndex[4] = ''
-                dataIndex[5] = that.product
-                dataIndex[6] = that.role
-                dataIndex[7] = ''
-                dataIndex[8] = ''
-                dataIndex[9] = that.supplier
-                dataIndex[10] = 0
-              })
-              data.unshift(HEADER)
-              that.doc = Papa.unparse(data)
+              }
 
               function changeDate (date) {
-                var newDate = new Date(date).toLocaleDateString('es-ES').replace(/\//g, '.')
-                return newDate
+                const newDate = new Date(date).toLocaleDateString('es-ES').replace(/\//g, '.');
+                return newDate;
               }
 
               function getOnSiteHour (hours) {
-                return !!hours.match(/remote/)
+                return !!hours.match(/remote/);
               }
             },
             error (errors) {
-              console.log('error', errors)
+              console.error('error', errors);
             }
           })
         }
-        reader.readAsText(fileToLoad)
+        reader.readAsText(fileToLoad);
       },
       save () {
-        let that = this
-        const blob = new Blob([this.parseJSONtoCSV()], { type: 'text/csv' })
-        let title = createTitle()
-        FileSaver.saveAs(blob, title + '.csv')
+        const that = this;
+        const blob = new Blob([this.parseJSONtoCSV()], { type: 'text/csv' });
+        const title = createTitle();
+
+        FileSaver.saveAs(blob, title + '.csv');
+
         function createTitle () {
-          let supplier = that.supplier.replace(' ', '_')
-          let name = that.name.split(' ')
-          let date = new Date()
-          let month = date.getMonth() + 1
-          let newM = month < 10 ? ('0' + month) : month
-          let year = date.getUTCFullYear()
-          return year + newM + '_external_report_' + supplier + '_' + name[1] + '_' + name[0]
+          const supplier = that.supplier.replace(' ', '_');
+          const name = that.name.split(' ');
+          const date = new Date();
+          const month = date.getMonth() + 1;
+          const newM = month < 10 ? ('0' + month) : month;
+          const year = date.getUTCFullYear();
+          return year + newM + '_external_report_' + supplier + '_' + name[1] + '_' + name[0];
         }
       },
       parseJSONtoCSV () {
-        return this.doc
+        return this.doc;
       }
     }
   }
