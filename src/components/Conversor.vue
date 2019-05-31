@@ -106,10 +106,10 @@
         doc: null,
         loadedFile: false,
         isEditable: false,
-        name: '',
-        product: '',
-        role: '',
-        supplier: ''
+        name: 'Guillermo Loaysa',
+        product: 'Connect MB',
+        role: 'DEV-FE',
+        supplier: 'Novatec Consulting'
       }
     },
     methods: {
@@ -128,14 +128,15 @@
               let data = results.data
               results.data.forEach((dataHour, index) => {
                 let dataIndex = data[index]
-                let date = dataHour[0]
+                let date = changeDate(dataHour[0])
+                changeDate(date)
                 let hour = dataHour[5].replace(',', '.')
                 if (getOnSiteHour(dataHour[4])) {
-                  dataIndex[0] = hour
-                  dataIndex[1] = '0'
-                } else {
                   dataIndex[1] = hour
                   dataIndex[0] = '0'
+                } else {
+                  dataIndex[0] = hour
+                  dataIndex[1] = '0'
                 }
                 dataIndex[2] = that.name
                 dataIndex[3] = date
@@ -149,6 +150,11 @@
               })
               data.unshift(HEADER)
               that.doc = Papa.unparse(data)
+
+              function changeDate (date) {
+                var newDate = new Date(date).toLocaleDateString('es-ES').replace(/\//g, '.')
+                return newDate
+              }
 
               function getOnSiteHour (hours) {
                 return !!hours.match(/remote/)
