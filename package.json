@@ -18,7 +18,7 @@
     "filesaver": "0.0.13",
     "fs": "0.0.1-security",
     "json-beautify": "^1.0.1",
-    "papaparse": "^4.3.3",
+    "papaparse": "^5.2.0",
     "vue": "^2.3.3"
   },
   "devDependencies": {
